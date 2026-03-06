@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         AWS_DEFAULT_REGION = "ap-south-1"
+        AWS_ACCESS_KEY_ID = credentials('f1bfbd85-84ce-404c-b069-1c91d0206b8b').username
+        AWS_SECRET_ACCESS_KEY = credentials('f1bfbd85-84ce-404c-b069-1c91d0206b8b').password
     }
 
     stages {
@@ -15,12 +17,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
-                ]]) {
-                    bat 'terraform init'
-                }
+                bat 'terraform init'
             }
         }
 
@@ -38,12 +35,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
-                ]]) {
-                    bat 'terraform plan'
-                }
+                bat 'terraform plan'
             }
         }
 
@@ -55,12 +47,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
-                ]]) {
-                    bat 'terraform apply -auto-approve'
-                }
+                bat 'terraform apply -auto-approve'
             }
         }
     }

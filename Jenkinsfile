@@ -7,22 +7,58 @@ pipeline {
 
     stages {
 
-        stage('Terraform Pipeline') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
                 ]]) {
-
-                    checkout scm
-
                     bat 'terraform init'
-                    bat 'terraform fmt -check'
-                    bat 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Fmt') {
+            steps {
+                bat 'terraform fmt -check'
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                bat 'terraform validate'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
+                ]]) {
                     bat 'terraform plan'
+                }
+            }
+        }
 
-                    input message: 'Approve Terraform Apply?'
+        stage('Manual Approval') {
+            steps {
+                input message: 'Approve Terraform Apply?'
+            }
+        }
 
+        stage('Terraform Apply') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'f1bfbd85-84ce-404c-b069-1c91d0206b8b'
+                ]]) {
                     bat 'terraform apply -auto-approve'
                 }
             }
